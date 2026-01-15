@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 API_KEY = os.getenv("YOUTUBE_API_KEY")
-CHANNEL_HANDLE = "RJTheBikeGuy" #"hoer.berlin"
+CHANNEL_HANDLE = os.getenv("CHANNEL_HANDLE")
 JSON_PATH = f"data/{CHANNEL_HANDLE}"
 
 def get_playlist_id(channel_handle: str, api_key: str, save_json: bool = False):
