@@ -13,6 +13,10 @@ from api.extract_functions import (
                                     extract_video_detail, 
                                     save_video_data_to_json
                                     )
+from datawarehouse.dwh import(
+                                staging_table,
+                                core_table
+                                )
 
 # ============================================================
 # Define local time zone
@@ -69,3 +73,21 @@ with DAG(
     
     # Define dependencies
     playlistID >> video_ids >> extracted_data >> save_to_json_task
+
+# ============================================================
+## dag_02: Loading data into 'staging' and 'core' schemas.
+
+with DAG(
+        dag_id="youtube_db_load",
+        default_args=default_args,
+        description= "This DAG handles data loading to 'staging' and 'core' schemas.",
+        schedule = "0 10 * * *", # cron code "minute hour day month weekday" https://crontab.guru/#0_8_*_*_*
+        catchup = False,
+    ) as dag_02:
+
+    # Tasks
+    update_staging_layer = staging_table()
+    update_core_layer = core_table()
+
+    #Define dependencies
+    update_staging_layer >> update_core_layer
