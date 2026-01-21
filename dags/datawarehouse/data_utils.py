@@ -27,7 +27,7 @@ def create_schema(schema):
     
     schema_ddl = (
                     sql.SQL("CREATE SCHEMA IF NOT EXISTS {schema}").
-                    format(sql.Identifier(schema))
+                    format(schema=sql.Identifier(schema))
                   )
     cur.execute(schema_ddl)
     conn.commit()
