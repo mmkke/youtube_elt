@@ -18,6 +18,7 @@ from datawarehouse.dwh import(
                                 core_table
                                 )
 
+from data_quality.soda import yt_elt_data_quality
 # ============================================================
 # Define local time zone
 local_tz = pendulum.timezone("America/New_York")
@@ -36,8 +37,6 @@ default_args = {
     "start_date": datetime(2026, 1, 1, tzinfo=local_tz),
     # 'end_date': datetime(2030, 12, 31, tzinfo=local_tz),
 }
-
-
 
 # ============================================================
 ## dag_01: Accessing YouTube API and saving JSON with raw video data
@@ -91,3 +90,22 @@ with DAG(
 
     #Define dependencies
     update_staging_layer >> update_core_layer
+
+
+# ============================================================
+## dag_02: Loading data into 'staging' and 'core' schemas.
+
+with DAG(
+        dag_id="data_quality_soda_check",
+        default_args=default_args,
+        description= "This DAG checks data quality on both staging and core layers using Soda.",
+        schedule = "0 12 * * *", # cron code "minute hour day month weekday" https://crontab.guru/#0_8_*_*_*
+        catchup = False,
+    ) as dag_03:
+
+    # Tasks
+    soda_validate_staging = yt_elt_data_quality(schema='staging')
+    soda_validate_core = yt_elt_data_quality(schema='core')
+
+    #Define dependencies
+    soda_validate_staging >> soda_validate_core
