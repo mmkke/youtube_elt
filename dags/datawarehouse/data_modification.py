@@ -25,6 +25,7 @@ def insert_rows(cur, schema, table, row):
                 "video_title": row["Video_Title"],
                 "upload_date": row["Upload_Date"],
                 "duration": row["Duration"],
+                "video_type": row["Video_Type"],
                 "video_views": row["Video_Views"],
                 "likes_count": row["Likes_Count"],
                 "comments_count": row["Comments_Count"],
@@ -72,6 +73,7 @@ def update_rows(cur, schema, table, row):
                 "video_id": row["video_id"],
                 "upload_date": row["publishedAt"],
                 "video_title": row["title"],
+                "duration": row["duration"],
                 "video_views": row["viewCount"],
                 "likes_count": row["likeCount"],
                 "comments_count": row["commentCount"],
@@ -81,6 +83,8 @@ def update_rows(cur, schema, table, row):
                 "video_id": row["Video_ID"],
                 "upload_date": row["Upload_Date"],
                 "video_title": row["Video_Title"],
+                "duration": row["Duration"],
+                "video_type": row["Video_Type"],
                 "video_views": row["Video_Views"],
                 "likes_count": row["Likes_Count"],
                 "comments_count": row["Comments_Count"],
@@ -116,14 +120,14 @@ def delete_rows(cur, schema, table, ids_to_delete):
     try:
         sql_string = (sql.SQL("""
                                 DELETE FROM {schema}.{table}
-                                WHERE "Video_ID" IN ANY(%s)
+                                WHERE "Video_ID" = ANY(%s)
                              """).
                         format(
                                 schema=sql.Identifier(schema),
                                 table = sql.Identifier(table)
                                 )
                     )
-        cur.execute(sql_string, (ids_to_delete))
+        cur.execute(sql_string, (ids_to_delete,))
     except Error:
         logger.exception(f"Delete failed for Video_IDs=%s", ids_to_delete)
         raise
