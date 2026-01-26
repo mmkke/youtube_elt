@@ -96,7 +96,7 @@ CORE_PARAMS_02 = {
 
 def test_insert_rows_staging_builds_params_and_executes(cur):
     row = RAW_ROW_01
-    insert_rows(cur, schema="staging", table="yt_api", row=row)
+    insert_rows(cur, schema="staging", layer="staging", table="yt_api", row=row)
 
     cur.execute.assert_called_once()
     query_arg, params_arg = cur.execute.call_args[0]
@@ -104,7 +104,7 @@ def test_insert_rows_staging_builds_params_and_executes(cur):
 
 def test_insert_rows_core_builds_params_and_executes(cur):
     row = transform_duration(STAGING_ROW_01)
-    insert_rows(cur, schema="core", table="yt_api", row=row)
+    insert_rows(cur, schema="core", layer="core", table="yt_api", row=row)
 
     cur.execute.assert_called_once()
     query_arg, params_arg = cur.execute.call_args[0]
@@ -114,7 +114,7 @@ def test_insert_rows_core_builds_params_and_executes(cur):
 
 def test_update_rows_staging_builds_params_and_executes(cur):
     row = RAW_ROW_02
-    update_rows(cur, schema="staging", table="yt_api", row=row)
+    update_rows(cur, schema="staging", layer="staging", table="yt_api", row=row)
 
     cur.execute.assert_called_once()
     _, params_arg = cur.execute.call_args[0]
@@ -122,7 +122,7 @@ def test_update_rows_staging_builds_params_and_executes(cur):
 
 def test_update_rows_core_builds_params_and_executes(cur):
     row = transform_duration(STAGING_ROW_02)
-    update_rows(cur, schema="core", table="yt_api", row=row)
+    update_rows(cur, schema="core", layer="core", table="yt_api", row=row)
 
     cur.execute.assert_called_once()
     _, params_arg = cur.execute.call_args[0]
@@ -148,7 +148,7 @@ def test_insert_rows_reraises_psycopg2_error(cur):
     cur.execute.side_effect = Error("db error")
 
     with pytest.raises(Error):
-        insert_rows(cur, schema="staging", table="yt_api", row=row)
+        insert_rows(cur, schema="staging", layer="staging", table="yt_api", row=row)
 
 
 def test_update_rows_reraises_psycopg2_error(cur):
@@ -156,5 +156,5 @@ def test_update_rows_reraises_psycopg2_error(cur):
     cur.execute.side_effect = Error("db error")
 
     with pytest.raises(Error):
-        update_rows(cur, schema="staging", table="yt_api", row=row)
+        update_rows(cur, schema="staging", layer="staging", table="yt_api", row=row)
 

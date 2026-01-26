@@ -8,9 +8,9 @@ from psycopg2.extras import RealDictCursor
 table = "yt_api"
 
 
-def get_conn_cursor():
+def get_conn_cursor(conn_id: str = "postgres_db_yt_elt", database: str | None = "elt_db"):
     """Initializes connection and cursor for Database"""
-    hook = PostgresHook(postgres_conn_id="postgres_db_yt_elt", database="elt_db")
+    hook = PostgresHook(postgres_conn_id=conn_id, database=database)
     conn = hook.get_conn()
     cur = conn.cursor(cursor_factory=RealDictCursor)
     return conn, cur
@@ -21,25 +21,18 @@ def close_conn_cursor(conn, cur):
     conn.close()
 
 
-def create_schema(schema):
-    """Create schema"""
-    conn, cur = get_conn_cursor()
-    
+def create_schema(cur, schema):
+    """Create schema"""    
     schema_ddl = (
                     sql.SQL("CREATE SCHEMA IF NOT EXISTS {schema}").
                     format(schema=sql.Identifier(schema))
                   )
     cur.execute(schema_ddl)
-    conn.commit()
 
-    close_conn_cursor(conn, cur)
-
-def create_table(schema: str, table: str) -> None:
+def create_table(cur, schema: str, layer: str, table: str) -> None:
     """Create a table if it does not exist."""
-    conn, cur = get_conn_cursor()
-
     try:
-        if schema == "staging":
+        if layer == "staging":
             ddl = sql.SQL("""
                 CREATE TABLE IF NOT EXISTS {schema}.{table} (
                     "Video_ID" VARCHAR(11) PRIMARY KEY NOT NULL,
@@ -51,7 +44,7 @@ def create_table(schema: str, table: str) -> None:
                     "Comments_Count" BIGINT
                 );
             """)
-        else:
+        elif layer== "core":
             ddl = sql.SQL("""
                 CREATE TABLE IF NOT EXISTS {schema}.{table} (
                     "Video_ID" VARCHAR(11) PRIMARY KEY NOT NULL,
@@ -64,6 +57,8 @@ def create_table(schema: str, table: str) -> None:
                     "Comments_Count" BIGINT
                 );
             """)
+        else:
+            raise ValueError(f"Invalid layer={layer!r}. Expected 'staging' or 'core'.")
 
         cur.execute(
                     ddl.format(
@@ -71,15 +66,8 @@ def create_table(schema: str, table: str) -> None:
                             table=sql.Identifier(table),
                         )
                     )
-        conn.commit()
-
     except Exception:
-        conn.rollback()
         raise
-
-    finally:
-        close_conn_cursor(conn, cur)
-
 
 def get_video_ids(cur, schema: str, table: str) -> list[str]:
     """Return list of video IDs from the table."""

@@ -7,9 +7,9 @@ from psycopg2 import sql, Error
 logger = logging.getLogger(__name__)
 # table = "yt_api"
 
-def insert_rows(cur, schema, table, row):
+def insert_rows(cur, schema, layer, table, row):
     try:
-        if schema == "staging":
+        if layer == "staging":
             params = {
                 "video_id": row["video_id"],
                 "video_title": row["title"],
@@ -19,7 +19,7 @@ def insert_rows(cur, schema, table, row):
                 "likes_count": row["likeCount"],
                 "comments_count": row["commentCount"],
             }
-        else:
+        elif layer == "core":
             params = {
                 "video_id": row["Video_ID"],
                 "video_title": row["Video_Title"],
@@ -30,6 +30,8 @@ def insert_rows(cur, schema, table, row):
                 "likes_count": row["Likes_Count"],
                 "comments_count": row["Comments_Count"],
             }
+        else:
+            raise ValueError(f"Invalid layer={layer!r}. Expected 'staging' or 'core'.")
 
         query = (
                 sql.SQL(
@@ -65,10 +67,10 @@ def insert_rows(cur, schema, table, row):
         logger.exception("Insert failed for video_id=%s", params.get("video_id"))
         raise
     
-def update_rows(cur, schema, table, row):
+def update_rows(cur, schema, layer, table, row):
 
     try:
-        if schema == "staging":
+        if layer == "staging":
             params = {
                 "video_id": row["video_id"],
                 "upload_date": row["publishedAt"],
@@ -78,17 +80,21 @@ def update_rows(cur, schema, table, row):
                 "likes_count": row["likeCount"],
                 "comments_count": row["commentCount"],
             }
-        else:
+        elif layer == "core":
             params = {
                 "video_id": row["Video_ID"],
                 "upload_date": row["Upload_Date"],
                 "video_title": row["Video_Title"],
                 "duration": row["Duration"],
                 "video_type": row["Video_Type"],
+
                 "video_views": row["Video_Views"],
                 "likes_count": row["Likes_Count"],
                 "comments_count": row["Comments_Count"],
             }
+        else:
+            raise ValueError(f"Invalid layer={layer!r}. Expected 'staging' or 'core'.")
+
 
         query = (
                 sql.SQL(

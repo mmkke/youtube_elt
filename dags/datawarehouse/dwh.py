@@ -46,6 +46,7 @@ def staging_table():
     a rollback and the task fails.
     """
     schema = "staging"
+    layer = "staging"
     conn, cur = None, None
 
     # Counters for concise Airflow logs
@@ -58,10 +59,11 @@ def staging_table():
         logger.info("Starting sync for %s.%s", schema, TABLE)
 
         conn, cur = get_conn_cursor()
-
-        # Ensure schema/table exist (note: these helpers may manage their own connections internally)
-        create_schema(schema)
-        create_table(schema, TABLE)
+        create_schema(cur, schema)
+        conn.commit()
+        
+        create_table(cur, schema, layer, TABLE)
+        conn.commit()
 
         # Load raw data from JSON
         raw_data = load_data()
@@ -80,11 +82,11 @@ def staging_table():
                 continue
 
             if video_id in table_ids:
-                update_rows(cur, schema, TABLE, row)
+                update_rows(cur, schema, layer, TABLE, row)
                 updated += 1
                 logger.debug("Updated Video_ID=%s in %s.%s", video_id, schema, TABLE)
             else:
-                insert_rows(cur, schema, TABLE, row)
+                insert_rows(cur, schema, layer, TABLE, row)
                 inserted += 1
                 table_ids.add(video_id)
                 logger.debug("Inserted Video_ID=%s in %s.%s", video_id, schema, TABLE)
@@ -139,6 +141,7 @@ def core_table():
     a rollback and the task fails.
     """
     schema = "core"
+    layer = "core"
     conn, cur = None, None
 
     inserted = 0
@@ -150,10 +153,10 @@ def core_table():
         logger.info("Starting sync for %s.%s", schema, TABLE)
 
         conn, cur = get_conn_cursor()
-
-        # Ensure schema/table exist (note: these helpers may manage their own connections internally)
-        create_schema(schema)
-        create_table(schema, TABLE)
+        create_schema(cur, schema)
+        conn.commit()
+        create_table(cur, schema, layer, TABLE)
+        conn.commit()
 
         # Existing IDs in core table
         table_ids = set(get_video_ids(cur, schema, TABLE))
@@ -196,11 +199,11 @@ def core_table():
             transformed_row = transform_duration(row)
 
             if video_id in table_ids:
-                update_rows(cur, schema, TABLE, transformed_row)
+                update_rows(cur, schema, layer, TABLE, transformed_row)
                 updated += 1
                 logger.debug("Updated Video_ID=%s in %s.%s", video_id, schema, TABLE)
             else:
-                insert_rows(cur, schema, TABLE, transformed_row)
+                insert_rows(cur, schema, layer, TABLE, transformed_row)
                 inserted += 1
                 table_ids.add(video_id)
                 logger.debug("Inserted Video_ID=%s in %s.%s", video_id, schema, TABLE)
