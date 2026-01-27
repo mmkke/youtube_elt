@@ -3,7 +3,7 @@ from unittest.mock import Mock
 from psycopg2 import Error, sql
 
 
-from datawarehouse.data_utils import get_video_ids
+from elt.dwh.data_utils import get_video_ids
 
 @pytest.fixture
 def cur():

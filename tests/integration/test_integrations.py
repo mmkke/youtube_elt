@@ -2,9 +2,9 @@ import pytest
 from psycopg2 import sql
 from datetime import timedelta
 
-from datawarehouse.data_utils import create_table
-from datawarehouse.data_modification import insert_rows, update_rows, delete_rows
-from datawarehouse.data_transformations import transform_duration
+from elt.dwh.data_utils import create_table
+from elt.dwh.data_modification import insert_rows, update_rows, delete_rows
+from elt.dwh.data_transformations import transform_duration
 
 RAW_ROW = {
     "video_id": "abc123",

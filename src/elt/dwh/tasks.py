@@ -16,16 +16,16 @@ from airflow.decorators import task
 from psycopg2 import sql, Error
 
 # Modules
-from datawarehouse.data_utils import (
+from .data_utils import (
     get_conn_cursor,
     close_conn_cursor,
     create_schema,
     create_table,
     get_video_ids,
 )
-from datawarehouse.data_loading import load_data
-from datawarehouse.data_modification import insert_rows, update_rows, delete_rows
-from datawarehouse.data_transformations import transform_duration
+from .data_loading import load_data
+from .data_modification import insert_rows, update_rows, delete_rows
+from .data_transformations import transform_duration
 
 # Params
 logger = logging.getLogger(__name__)

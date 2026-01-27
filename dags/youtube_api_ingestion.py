@@ -7,18 +7,18 @@ from airflow.operators.trigger_dagrun import TriggerDagRunOperator
 from datetime import datetime, timedelta
 
 # Modules
-from api.extract_functions import (
+from elt.api.extract_functions import (
                                     get_playlist_id, 
                                     get_video_ids, 
                                     extract_video_detail, 
                                     save_video_data_to_json
                                     )
-from datawarehouse.dwh import(
+from elt.dwh.tasks import(
                                 staging_table,
                                 core_table
                                 )
 
-from data_quality.soda import yt_elt_data_quality
+from elt.data_quality.soda import yt_elt_data_quality
 # ============================================================
 # Define local time zone
 local_tz = pendulum.timezone("America/New_York")

@@ -3,8 +3,8 @@
 
 ### To do list:
     - finish testing
-        - unit
-        - integration
+        - unit: Done!
+        - integration: Done!
         - end-to-end
     - Refactor code and create package source code
     - Add timestamps to ingestion pipeline
@@ -17,18 +17,19 @@
 │   └── youtube_api_ingestion.py
 │
 ├── src/
-│   └── youtube_elt/
+│   └── elt/
 │       ├── __init__.py
 │       ├── api/
 │       │   ├── __init__.py
 │       │   └── extract.py
-│       ├── warehouse/
+│       ├── dwh/
 │       │   ├── __init__.py
 │       │   ├── data_utils.py
 │       │   ├── data_modification.py
 │       │   └── data_transformations.py
-│       └── config.py
-│
+│       └── data_quality/
+│           ├── __init__.py
+│           ├── soda.py
 ├── tests/
 │   ├── unit/
 │   │   └── test_data_modification.py

@@ -3,8 +3,8 @@ from unittest.mock import Mock
 from psycopg2 import Error
 from datetime import timedelta
 
-from datawarehouse.data_modification import insert_rows, update_rows, delete_rows
-from datawarehouse.data_transformations import transform_duration
+from elt.dwh.data_modification import insert_rows, update_rows, delete_rows
+from elt.dwh.data_transformations import transform_duration
 
 @pytest.fixture
 def cur():

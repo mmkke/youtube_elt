@@ -1,7 +1,7 @@
 import pytest
 from datetime import timedelta
 
-from datawarehouse.data_transformations import transform_duration
+from elt.dwh.data_transformations import transform_duration
 
 
 def test_transform_duration_short():

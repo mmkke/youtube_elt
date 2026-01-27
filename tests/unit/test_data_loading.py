@@ -4,7 +4,7 @@ import pytest
 from datetime import date
 from pathlib import Path
 
-import datawarehouse.data_loading as dl
+import elt.dwh.data_loading as dl
 
 def test_load_data_missing_channel_handle_raises(monkeypatch):
     monkeypatch.setattr(dl.Variable, "get", lambda *args, **kwargs: None)
