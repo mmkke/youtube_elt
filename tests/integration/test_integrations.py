@@ -1,6 +1,6 @@
 import pytest
 from psycopg2 import sql
-from datetime import timedelta
+from datetime import timedelta, date
 
 from elt.dwh.data_utils import create_table
 from elt.dwh.data_modification import insert_rows, update_rows, delete_rows
@@ -186,6 +186,7 @@ def test_05_transform_duration_then_insert_interval_roundtrip(db):
         "Video_Views": RAW_ROW_1["viewCount"],
         "Likes_Count": RAW_ROW_1["likeCount"],
         "Comments_Count": RAW_ROW_1["commentCount"],
+        "Ingested_At": date.today()
     }
 
     transformed = transform_duration(core_like)

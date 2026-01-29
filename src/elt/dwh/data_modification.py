@@ -26,7 +26,8 @@ def insert_rows(cur, schema: str, layer: str, table: str, row: dict) -> None:
                     "Duration",
                     "Video_Views",
                     "Likes_Count",
-                    "Comments_Count"
+                    "Comments_Count",
+                    "Ingested_At"
                 )
                 VALUES (
                     %(video_id)s,
@@ -35,7 +36,8 @@ def insert_rows(cur, schema: str, layer: str, table: str, row: dict) -> None:
                     %(duration)s,
                     %(video_views)s,
                     %(likes_count)s,
-                    %(comments_count)s
+                    %(comments_count)s,
+                    NOW()
                 );
             """).format(
                 schema=sql.Identifier(schema),
@@ -52,6 +54,7 @@ def insert_rows(cur, schema: str, layer: str, table: str, row: dict) -> None:
                 "video_views": row.get("Video_Views"),
                 "likes_count": row.get("Likes_Count"),
                 "comments_count": row.get("Comments_Count"),
+                "ingested_at": row["Ingested_At"]
             }
 
             query = sql.SQL("""
@@ -63,7 +66,8 @@ def insert_rows(cur, schema: str, layer: str, table: str, row: dict) -> None:
                     "Video_Type",
                     "Video_Views",
                     "Likes_Count",
-                    "Comments_Count"
+                    "Comments_Count",
+                    "Ingested_At"
                 )
                 VALUES (
                     %(video_id)s,
@@ -73,7 +77,8 @@ def insert_rows(cur, schema: str, layer: str, table: str, row: dict) -> None:
                     %(video_type)s,
                     %(video_views)s,
                     %(likes_count)s,
-                    %(comments_count)s
+                    %(comments_count)s,
+                    %(ingested_at)s
                 );
             """).format(
                 schema=sql.Identifier(schema),
@@ -130,6 +135,7 @@ def update_rows(cur, schema: str, layer: str, table: str, row: dict) -> None:
                 "video_views": row.get("Video_Views"),
                 "likes_count": row.get("Likes_Count"),
                 "comments_count": row.get("Comments_Count"),
+                "ingested_at": row["Ingested_At"]
             }
 
             query = sql.SQL("""
@@ -140,7 +146,8 @@ def update_rows(cur, schema: str, layer: str, table: str, row: dict) -> None:
                     "Video_Type"     = %(video_type)s,
                     "Video_Views"    = %(video_views)s,
                     "Likes_Count"    = %(likes_count)s,
-                    "Comments_Count" = %(comments_count)s
+                    "Comments_Count" = %(comments_count)s,
+                    "Ingested_At"    = %(ingested_at)s      
                 WHERE
                     "Video_ID" = %(video_id)s
                     AND "Upload_Date" = %(upload_date)s;

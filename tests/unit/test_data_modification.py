@@ -1,7 +1,7 @@
 import pytest
 from unittest.mock import Mock
 from psycopg2 import Error
-from datetime import timedelta
+from datetime import timedelta, date
 
 from elt.dwh.data_modification import insert_rows, update_rows, delete_rows
 from elt.dwh.data_transformations import transform_duration
@@ -39,6 +39,7 @@ STAGING_ROW_01 = {
         "Video_Views": 10,
         "Likes_Count": 2,
         "Comments_Count": 1,
+        "Ingested_At": date.today()
     }
 
 CORE_PARAMS_01 = {
@@ -50,6 +51,7 @@ CORE_PARAMS_01 = {
         "video_views": 10,
         "likes_count": 2,
         "comments_count": 1,
+        "ingested_at": date.today()
     }
 
 RAW_ROW_02 = {
@@ -80,6 +82,7 @@ STAGING_ROW_02 = {
         "Video_Views": 99,
         "Likes_Count": 7,
         "Comments_Count": 3,
+        "Ingested_At": date.today()
     }
 
 CORE_PARAMS_02 = {
@@ -91,6 +94,7 @@ CORE_PARAMS_02 = {
         "video_views": 99,
         "likes_count": 7,
         "comments_count": 3,
+        "ingested_at": date.today()
     }
 
 

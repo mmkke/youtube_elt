@@ -14,6 +14,8 @@ Logging is structured to be Airflow-friendly:
 import logging
 from airflow.decorators import task
 from psycopg2 import sql, Error
+from datetime import date
+from pendulum import DateTime
 
 # Modules
 from .data_utils import (
@@ -26,10 +28,14 @@ from .data_utils import (
 from .data_loading import load_data
 from .data_modification import insert_rows, update_rows, delete_rows
 from .data_transformations import transform_duration
+from .daily_metrics import (create_daily_metrics_table, 
+                            create_daily_metrics_indexes, 
+                            upsert_daily_metrics
+)
 
 # Params
 logger = logging.getLogger(__name__)
-TABLE = "yt_api"
+
 
 
 @task
@@ -47,6 +53,7 @@ def staging_table():
     """
     schema = "staging"
     layer = "staging"
+    table = "yt_api"
     conn, cur = None, None
 
     # Counters for concise Airflow logs
@@ -56,13 +63,13 @@ def staging_table():
     deleted = 0
 
     try:
-        logger.info("Starting sync for %s.%s", schema, TABLE)
+        logger.info("Starting sync for %s.%s", schema, table)
 
         conn, cur = get_conn_cursor()
         create_schema(cur, schema)
         conn.commit()
         
-        create_table(cur, schema, layer, TABLE)
+        create_table(cur, schema, layer, table)
         conn.commit()
 
         # Load raw data from JSON
@@ -70,8 +77,8 @@ def staging_table():
         logger.info("Raw rows loaded from JSON: %d", len(raw_data))
 
         # IDs currently in the staging table
-        table_ids = set(get_video_ids(cur, schema, TABLE))
-        logger.info("Existing IDs in %s.%s: %d", schema, TABLE, len(table_ids))
+        table_ids = set(get_video_ids(cur, schema, table))
+        logger.info("Existing IDs in %s.%s: %d", schema, table, len(table_ids))
 
         # Upsert rows from JSON
         for row in raw_data:
@@ -82,20 +89,20 @@ def staging_table():
                 continue
 
             if video_id in table_ids:
-                update_rows(cur, schema, layer, TABLE, row)
+                update_rows(cur, schema, layer, table, row)
                 updated += 1
-                logger.debug("Updated Video_ID=%s in %s.%s", video_id, schema, TABLE)
+                logger.debug("Updated Video_ID=%s in %s.%s", video_id, schema, table)
             else:
-                insert_rows(cur, schema, layer, TABLE, row)
+                insert_rows(cur, schema, layer, table, row)
                 inserted += 1
                 table_ids.add(video_id)
-                logger.debug("Inserted Video_ID=%s in %s.%s", video_id, schema, TABLE)
+                logger.debug("Inserted Video_ID=%s in %s.%s", video_id, schema, table)
 
         # Delete rows that are no longer present in JSON
         ids_in_json = {r.get("video_id") for r in raw_data if r.get("video_id")}
         ids_to_delete = list(table_ids - ids_in_json)
         if ids_to_delete:
-            delete_rows(cur, schema, TABLE, ids_to_delete)
+            delete_rows(cur, schema, table, ids_to_delete)
             deleted = len(ids_to_delete)
 
         conn.commit()
@@ -103,7 +110,7 @@ def staging_table():
         logger.info(
             "%s.%s sync complete: inserted=%d updated=%d deleted=%d skipped=%d total_after=%d",
             schema,
-            TABLE,
+            table,
             inserted,
             updated,
             deleted,
@@ -114,12 +121,12 @@ def staging_table():
     except Error:
         if conn:
             conn.rollback()
-        logger.exception("DB error updating %s.%s", schema, TABLE)
+        logger.exception("DB error updating %s.%s", schema, table)
         raise
     except Exception:
         if conn:
             conn.rollback()
-        logger.exception("Unexpected error updating %s.%s", schema, TABLE)
+        logger.exception("Unexpected error updating %s.%s", schema, table)
         raise
     finally:
         if conn and cur:
@@ -142,6 +149,7 @@ def core_table():
     """
     schema = "core"
     layer = "core"
+    table="yt_api"
     conn, cur = None, None
 
     inserted = 0
@@ -150,17 +158,17 @@ def core_table():
     deleted = 0
 
     try:
-        logger.info("Starting sync for %s.%s", schema, TABLE)
+        logger.info("Starting sync for %s.%s", schema, table)
 
         conn, cur = get_conn_cursor()
         create_schema(cur, schema)
         conn.commit()
-        create_table(cur, schema, layer, TABLE)
+        create_table(cur, schema, layer, table)
         conn.commit()
 
         # Existing IDs in core table
-        table_ids = set(get_video_ids(cur, schema, TABLE))
-        logger.info("Existing IDs in %s.%s: %d", schema, TABLE, len(table_ids))
+        table_ids = set(get_video_ids(cur, schema, table))
+        logger.info("Existing IDs in %s.%s: %d", schema, table, len(table_ids))
 
         # Pull all rows from staging
         fetch_rows_sql = sql.SQL(
@@ -172,17 +180,18 @@ def core_table():
                 "Duration",
                 "Video_Views",
                 "Likes_Count",
-                "Comments_Count"
+                "Comments_Count",
+                "Ingested_At"
             FROM {schema}.{table};
             """
         ).format(
             schema=sql.Identifier("staging"),
-            table=sql.Identifier(TABLE),
+            table=sql.Identifier(table),
         )
 
         cur.execute(fetch_rows_sql)
         rows = cur.fetchall()
-        logger.info("Rows fetched from staging.%s: %d", TABLE, len(rows))
+        logger.info("Rows fetched from staging.%s: %d", table, len(rows))
 
         # Track which IDs currently exist in staging, for delete detection
         staging_ids = set()
@@ -199,19 +208,19 @@ def core_table():
             transformed_row = transform_duration(row)
 
             if video_id in table_ids:
-                update_rows(cur, schema, layer, TABLE, transformed_row)
+                update_rows(cur, schema, layer, table, transformed_row)
                 updated += 1
-                logger.debug("Updated Video_ID=%s in %s.%s", video_id, schema, TABLE)
+                logger.debug("Updated Video_ID=%s in %s.%s", video_id, schema, table)
             else:
-                insert_rows(cur, schema, layer, TABLE, transformed_row)
+                insert_rows(cur, schema, layer, table, transformed_row)
                 inserted += 1
                 table_ids.add(video_id)
-                logger.debug("Inserted Video_ID=%s in %s.%s", video_id, schema, TABLE)
+                logger.debug("Inserted Video_ID=%s in %s.%s", video_id, schema, table)
 
         # Delete any rows from core that no longer appear in staging
         ids_to_delete = list(table_ids - staging_ids)
         if ids_to_delete:
-            delete_rows(cur, schema, TABLE, ids_to_delete)
+            delete_rows(cur, schema, table, ids_to_delete)
             deleted = len(ids_to_delete)
 
         conn.commit()
@@ -219,7 +228,7 @@ def core_table():
         logger.info(
             "%s.%s sync complete: inserted=%d updated=%d deleted=%d skipped=%d staging_rows=%d core_before=%d core_after≈%d",
             schema,
-            TABLE,
+            table,
             inserted,
             updated,
             deleted,
@@ -232,12 +241,65 @@ def core_table():
     except Error:
         if conn:
             conn.rollback()
-        logger.exception("DB error updating %s.%s", schema, TABLE)
+        logger.exception("DB error updating %s.%s", schema, table)
         raise
     except Exception:
         if conn:
             conn.rollback()
-        logger.exception("Unexpected error updating %s.%s", schema, TABLE)
+        logger.exception("Unexpected error updating %s.%s", schema, table)
+        raise
+    finally:
+        if conn and cur:
+            close_conn_cursor(conn, cur)
+
+@task
+def daily_metrics_table(logical_date: DateTime):
+    """Populate and maintain the daily metrics YouTube analytics table."""
+    schema = "core"
+    table = "yt_api_metrics_daily"
+    conn, cur = None, None
+    snapshot_date = logical_date.date()
+
+    try:
+        logger.info("Starting sync for %s.%s", schema, table)
+
+        conn, cur = get_conn_cursor()
+        create_daily_metrics_table(cur)
+        conn.commit()
+        create_daily_metrics_indexes(cur)
+        conn.commit()
+
+        # Pull all rows from core
+        fetch_rows_sql = (sql.SQL("""
+                                    SELECT
+                                        "Video_ID",
+                                        "Video_Views",
+                                        "Likes_Count",
+                                        "Comments_Count"
+                                    FROM {schema}.{table};
+                                """).
+                            format(
+                                schema=sql.Identifier("core"),
+                                table=sql.Identifier("yt_api"),
+                            ))
+
+        cur.execute(fetch_rows_sql)
+        rows = cur.fetchall()
+        logger.info("Rows fetched from core.yt_api: %d", len(rows))
+
+
+        for row in rows:
+            upsert_daily_metrics(cur, row, snapshot_date=snapshot_date)
+        conn.commit()
+    except Error:
+        if conn:
+            conn.rollback()
+        logger.exception("DB error updating %s.%s", schema, table)
+        raise
+    except Exception:
+        if conn:
+            conn.rollback()
+        logger.exception("Unexpected error updating %s.%s", schema, table)
         raise
     finally:
         if conn and cur:

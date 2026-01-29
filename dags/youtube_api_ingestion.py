@@ -15,7 +15,8 @@ from elt.api.extract_functions import (
                                     )
 from elt.dwh.tasks import(
                                 staging_table,
-                                core_table
+                                core_table,
+                                daily_metrics_table
                                 )
 
 from elt.data_quality.soda import yt_elt_data_quality
@@ -87,13 +88,14 @@ with DAG(
     # Tasks
     update_staging_layer = staging_table()
     update_core_layer = core_table()
+    update_daily_metrics = daily_metrics_table()
 
     #Define dependencies
-    update_staging_layer >> update_core_layer
+    update_staging_layer >> update_core_layer >> update_daily_metrics
 
 
 # ============================================================
-## dag_02: Loading data into 'staging' and 'core' schemas.
+## dag_03: Checks data quality on both staging and core layers using Soda.
 
 with DAG(
         dag_id="data_quality_soda_check",

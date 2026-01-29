@@ -41,7 +41,8 @@ def create_table(cur, schema: str, layer: str, table: str) -> None:
                     "Duration" VARCHAR(20) NOT NULL,
                     "Video_Views" BIGINT,
                     "Likes_Count" BIGINT,
-                    "Comments_Count" BIGINT
+                    "Comments_Count" BIGINT,
+                    "Ingested_At" TIMESTAMPTZ NOT NULL DEFAULT now()
                 );
             """)
         elif layer== "core":
@@ -54,7 +55,8 @@ def create_table(cur, schema: str, layer: str, table: str) -> None:
                     "Video_Type" VARCHAR(10),
                     "Video_Views" BIGINT,
                     "Likes_Count" BIGINT,
-                    "Comments_Count" BIGINT
+                    "Comments_Count" BIGINT,
+                    "Ingested_At" TIMESTAMPTZ NOT NULL DEFAULT now()   
                 );
             """)
         else:
@@ -68,6 +70,7 @@ def create_table(cur, schema: str, layer: str, table: str) -> None:
                     )
     except Exception:
         raise
+
 
 def get_video_ids(cur, schema: str, table: str) -> list[str]:
     """Return list of video IDs from the table."""
