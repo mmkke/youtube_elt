@@ -5,10 +5,6 @@ import pytest
 from pathlib import Path
 from psycopg2 import sql
 
-# # Ensure /opt/airflow/dags is importable inside the container
-# DAGS_DIR = Path(__file__).resolve().parents[2] / "dags"
-# sys.path.insert(0, str(DAGS_DIR))
-
 from elt.dwh.data_utils import get_conn_cursor, close_conn_cursor
 
 TEST_CONN_ID = os.getenv("TEST_CONN_ID", "postgres_db_yt_elt_test")

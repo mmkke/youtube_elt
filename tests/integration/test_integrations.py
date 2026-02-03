@@ -5,6 +5,7 @@ from datetime import timedelta, date
 from elt.dwh.data_utils import create_table
 from elt.dwh.data_modification import insert_rows, update_rows, delete_rows
 from elt.dwh.data_transformations import transform_duration
+from elt.dwh.daily_metrics import create_daily_metrics_table, upsert_daily_metrics
 
 RAW_ROW = {
     "video_id": "abc123",
@@ -206,6 +207,14 @@ def test_05_transform_duration_then_insert_interval_roundtrip(db):
     assert row["Video_Type"] == "Normal"
 
 def test_06_insert_update_delete_roundtrip(db):
+    """    
+    Integration test: verify a full insert → update → delete lifecycle
+    against the staging.yt_api table.
+
+    This test exercises the core DML helpers (`insert_rows`, `update_rows`,
+    and `delete_rows`) end-to-end using a real Postgres connection and an
+    ephemeral test schema.
+    """
     conn, cur, schema = db
     table = "yt_api"
     layer = "staging"
@@ -246,3 +255,98 @@ def test_06_insert_update_delete_roundtrip(db):
         ("abc123",),
     )
     assert cur.fetchone()["n"] == 0
+
+
+def test_07_daily_metrics_upsert(db):
+    """
+    Integration test: verify daily metrics upsert behavior for a single video.
+
+    This test validates the end-to-end flow for populating the
+    `yt_api_metrics_daily` table from the core `yt_api` table.
+    """
+
+    conn, cur, schema = db
+    table = "yt_api_metrics_daily"
+    parent_table = "yt_api"
+    layer = "core"
+    snapshot_date = date.today()
+
+    # Create a parent and insert to parent table
+    create_table(cur=cur, schema=schema, layer=layer, table=parent_table)
+    conn.commit()
+    cur.execute("SELECT to_regclass(%s) AS t;", (f"{schema}.{parent_table}",))
+    assert cur.fetchone()["t"] == f"{schema}.{parent_table}"
+
+    two_days_ago = date.today() - timedelta(days=2)
+    parent_row = {
+                    "Video_ID": "xyz456",
+                    "Video_Title": "test title",
+                    "Upload_Date": "2026-01-01T00:00:00Z",
+                    "Duration": timedelta(minutes=15, seconds=33),
+                    "Video_Type": "Normal",
+                    "Video_Views": 111,
+                    "Likes_Count": 22,
+                    "Comments_Count": 33,
+                    "Ingested_At": two_days_ago
+                }
+    
+    insert_rows(cur=cur, schema=schema, layer=layer, table=parent_table, row=parent_row)
+    conn.commit()
+
+    # Fetch row
+    cur.execute(
+                sql.SQL(
+                        """
+                            SELECT
+                                "Video_ID",
+                                "Video_Views",
+                                "Likes_Count",
+                                "Comments_Count"
+                            FROM {schema}.{table}
+                            WHERE "Video_ID" = %s
+                        """).
+                format(
+                        schema=sql.Identifier(schema),
+                        table=sql.Identifier(parent_table),
+                    ),
+                    ("xyz456",),
+                )
+    row = cur.fetchone()
+    assert row is not None
+
+    # Create metrics table
+    create_daily_metrics_table(cur, 
+                               schema=schema, table=table, 
+                               parent_schema=schema, parent_table=parent_table)
+    conn.commit()
+    cur.execute("SELECT to_regclass(%s) AS t;", (f"{schema}.{table}",))
+    assert cur.fetchone()["t"] == f"{schema}.{table}"
+
+    # Upsert to daily metrics table
+    upsert_daily_metrics(cur, row, schema, table, snapshot_date)
+    conn.commit()
+
+    # Query row and assert
+    cur.execute(
+                sql.SQL("""
+                            SELECT 
+                                "Video_ID", 
+                                "Video_Views",
+                                "Likes_Count",
+                                "Comments_Count",
+                                "Snapshot_Date"
+                            FROM {}.{} 
+                            WHERE "Video_ID"=%s AND "Snapshot_Date" = %s
+                        """)
+                .format(
+                        sql.Identifier(schema), 
+                        sql.Identifier(table)
+                        ),
+                ("xyz456", snapshot_date)
+                )
+    row = cur.fetchone()
+    assert row["Video_ID"] == "xyz456"
+    assert row["Video_Views"] == 111
+    assert row["Likes_Count"] == 22
+    assert row["Comments_Count"] == 33
+    assert row["Snapshot_Date"] == snapshot_date
