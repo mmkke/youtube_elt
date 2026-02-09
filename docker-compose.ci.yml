@@ -1,4 +1,19 @@
 services:
+  # --- CI overrides for Postgres reliability ---
+  postgres:
+    # Don’t bind to host ports in CI (containers use the compose network)
+    ports: []
+
+    # CI-safe healthcheck: only verify server is accepting connections
+    # using the default postgres DB/user (always exists).
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 10s
+
+  # --- Use the same CI-built Airflow image for all Airflow services ---
   airflow-webserver:
     image: airflow-ci:latest
     build:
