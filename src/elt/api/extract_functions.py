@@ -1,9 +1,9 @@
-import requests
 import json
 from datetime import date
 from pathlib import Path
 from pprint import pprint
 
+import requests
 from airflow.decorators import task
 from airflow.models import Variable
 
@@ -71,8 +71,7 @@ def get_playlist_id(channel_handle: str, save_json: bool = False) -> str:
 
         channel_items = items[0]
         uploads_playlist_id = (
-            channel_items
-            .get("contentDetails", {})
+            channel_items.get("contentDetails", {})
             .get("relatedPlaylists", {})
             .get("uploads")
         )
@@ -167,7 +166,7 @@ def extract_video_detail(video_ids: list[str], batch_size: int = 50) -> list[dic
 
     def batch_list(items: list[str], n: int):
         for i in range(0, len(items), n):
-            yield items[i:i + n]
+            yield items[i : i + n]
 
     extracted: list[dict] = []
     url = "https://youtube.googleapis.com/youtube/v3/videos"
@@ -189,16 +188,18 @@ def extract_video_detail(video_ids: list[str], batch_size: int = 50) -> list[dic
                 stats = item.get("statistics", {}) or {}
                 details = item.get("contentDetails", {}) or {}
 
-                extracted.append({
-                    "video_id": item.get("id"),
-                    "title": snippet.get("title"),
-                    "publishedAt": snippet.get("publishedAt"),
-                    "duration": details.get("duration"),
-                    "viewCount": stats.get("viewCount"),
-                    "likeCount": stats.get("likeCount"),
-                    "favoriteCount": stats.get("favoriteCount"),
-                    "commentCount": stats.get("commentCount"),
-                })
+                extracted.append(
+                    {
+                        "video_id": item.get("id"),
+                        "title": snippet.get("title"),
+                        "publishedAt": snippet.get("publishedAt"),
+                        "duration": details.get("duration"),
+                        "viewCount": stats.get("viewCount"),
+                        "likeCount": stats.get("likeCount"),
+                        "favoriteCount": stats.get("favoriteCount"),
+                        "commentCount": stats.get("commentCount"),
+                    }
+                )
 
         return extracted
 
@@ -235,9 +236,9 @@ if __name__ == "__main__":
     extracted_data = extract_video_detail(video_ids=video_ids, batch_size=50)
     print(f"Num extracted: {len(extracted_data)}")
 
-    assert len(video_ids) == len(extracted_data), (
-        f"Extracted ({len(extracted_data)}) != video_ids ({len(video_ids)})"
-    )
+    assert len(video_ids) == len(
+        extracted_data
+    ), f"Extracted ({len(extracted_data)}) != video_ids ({len(video_ids)})"
 
     for data in extracted_data[:10]:
         pprint(data)

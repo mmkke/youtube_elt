@@ -12,30 +12,31 @@ Logging is structured to be Airflow-friendly:
 
 # Libraries
 import logging
+
 from airflow.decorators import task
-from psycopg2 import sql, Error
-from datetime import date
 from pendulum import DateTime
+from psycopg2 import Error, sql
+
+from .daily_metrics import (
+    create_daily_metrics_indexes,
+    create_daily_metrics_table,
+    upsert_daily_metrics,
+)
+from .data_loading import load_data
+from .data_modification import delete_rows, insert_rows, update_rows
+from .data_transformations import transform_duration
 
 # Modules
 from .data_utils import (
-    get_conn_cursor,
     close_conn_cursor,
     create_schema,
     create_table,
+    get_conn_cursor,
     get_video_ids,
-)
-from .data_loading import load_data
-from .data_modification import insert_rows, update_rows, delete_rows
-from .data_transformations import transform_duration
-from .daily_metrics import (create_daily_metrics_table, 
-                            create_daily_metrics_indexes, 
-                            upsert_daily_metrics
 )
 
 # Params
 logger = logging.getLogger(__name__)
-
 
 
 @task
@@ -68,7 +69,7 @@ def staging_table():
         conn, cur = get_conn_cursor()
         create_schema(cur, schema)
         conn.commit()
-        
+
         create_table(cur, schema, layer, table)
         conn.commit()
 
@@ -115,7 +116,8 @@ def staging_table():
             updated,
             deleted,
             skipped,
-            len(table_ids) - deleted,  # total_after is best-effort; table_ids included deleted ids before delete calc
+            len(table_ids)
+            - deleted,  # total_after is best-effort; table_ids included deleted ids before delete calc
         )
 
     except Error:
@@ -149,7 +151,7 @@ def core_table():
     """
     schema = "core"
     layer = "core"
-    table="yt_api"
+    table = "yt_api"
     conn, cur = None, None
 
     inserted = 0
@@ -235,7 +237,7 @@ def core_table():
             skipped,
             len(staging_ids),
             len(table_ids) + deleted - inserted,  # best-effort: before adds/removes
-            len(table_ids) - deleted,             # best-effort: after
+            len(table_ids) - deleted,  # best-effort: after
         )
 
     except Error:
@@ -251,6 +253,7 @@ def core_table():
     finally:
         if conn and cur:
             close_conn_cursor(conn, cur)
+
 
 @task
 def daily_metrics_table(logical_date: DateTime):
@@ -270,23 +273,23 @@ def daily_metrics_table(logical_date: DateTime):
         conn.commit()
 
         # Pull all rows from core
-        fetch_rows_sql = (sql.SQL("""
+        fetch_rows_sql = sql.SQL(
+            """
                                     SELECT
                                         "Video_ID",
                                         "Video_Views",
                                         "Likes_Count",
                                         "Comments_Count"
                                     FROM {schema}.{table};
-                                """).
-                            format(
-                                schema=sql.Identifier("core"),
-                                table=sql.Identifier("yt_api"),
-                            ))
+                                """
+        ).format(
+            schema=sql.Identifier("core"),
+            table=sql.Identifier("yt_api"),
+        )
 
         cur.execute(fetch_rows_sql)
         rows = cur.fetchall()
         logger.info("Rows fetched from core.yt_api: %d", len(rows))
-
 
         for row in rows:
             upsert_daily_metrics(cur, row, snapshot_date=snapshot_date)

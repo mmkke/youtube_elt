@@ -1,11 +1,11 @@
-import pytest
-from psycopg2 import sql
-from datetime import timedelta, date
+from datetime import date, timedelta
 
-from elt.dwh.data_utils import create_table
-from elt.dwh.data_modification import insert_rows, update_rows, delete_rows
-from elt.dwh.data_transformations import transform_duration
+from psycopg2 import sql
+
 from elt.dwh.daily_metrics import create_daily_metrics_table, upsert_daily_metrics
+from elt.dwh.data_modification import delete_rows, insert_rows, update_rows
+from elt.dwh.data_transformations import transform_duration
+from elt.dwh.data_utils import create_table
 
 RAW_ROW = {
     "video_id": "abc123",
@@ -51,17 +51,24 @@ RAW_ROW_1_UPDATED = {
 
 def _fetch_one(cur, schema, table, video_id, layer="staging"):
     cols = [
-        '"Video_ID"', '"Video_Title"', '"Upload_Date"', '"Duration"',
-        '"Video_Views"', '"Likes_Count"', '"Comments_Count"',
+        '"Video_ID"',
+        '"Video_Title"',
+        '"Upload_Date"',
+        '"Duration"',
+        '"Video_Views"',
+        '"Likes_Count"',
+        '"Comments_Count"',
     ]
     if layer == "core":
         cols.insert(4, '"Video_Type"')
 
-    q = sql.SQL("""
+    q = sql.SQL(
+        """
         SELECT {cols}
         FROM {schema}.{table}
         WHERE "Video_ID" = %s;
-    """).format(
+    """
+    ).format(
         cols=sql.SQL(", ").join(sql.SQL(c) for c in cols),
         schema=sql.Identifier(schema),
         table=sql.Identifier(table),
@@ -71,7 +78,7 @@ def _fetch_one(cur, schema, table, video_id, layer="staging"):
 
 
 def _count(cur, schema: str, table: str) -> int:
-    q = sql.SQL('SELECT COUNT(*) AS n FROM {schema}.{table}').format(
+    q = sql.SQL("SELECT COUNT(*) AS n FROM {schema}.{table}").format(
         schema=sql.Identifier(schema),
         table=sql.Identifier(table),
     )
@@ -187,7 +194,7 @@ def test_05_transform_duration_then_insert_interval_roundtrip(db):
         "Video_Views": RAW_ROW_1["viewCount"],
         "Likes_Count": RAW_ROW_1["likeCount"],
         "Comments_Count": RAW_ROW_1["commentCount"],
-        "Ingested_At": date.today()
+        "Ingested_At": date.today(),
     }
 
     transformed = transform_duration(core_like)
@@ -206,8 +213,9 @@ def test_05_transform_duration_then_insert_interval_roundtrip(db):
     assert row["Duration"] == timedelta(minutes=15, seconds=33)
     assert row["Video_Type"] == "Normal"
 
+
 def test_06_insert_update_delete_roundtrip(db):
-    """    
+    """
     Integration test: verify a full insert → update → delete lifecycle
     against the staging.yt_api table.
 
@@ -226,8 +234,9 @@ def test_06_insert_update_delete_roundtrip(db):
     conn.commit()
 
     cur.execute(
-        sql.SQL('SELECT "Video_Title", "Video_Views" FROM {}.{} WHERE "Video_ID"=%s')
-        .format(sql.Identifier(schema), sql.Identifier(table)),
+        sql.SQL(
+            'SELECT "Video_Title", "Video_Views" FROM {}.{} WHERE "Video_ID"=%s'
+        ).format(sql.Identifier(schema), sql.Identifier(table)),
         ("abc123",),
     )
     row = cur.fetchone()
@@ -238,8 +247,9 @@ def test_06_insert_update_delete_roundtrip(db):
     conn.commit()
 
     cur.execute(
-        sql.SQL('SELECT "Video_Title", "Video_Views" FROM {}.{} WHERE "Video_ID"=%s')
-        .format(sql.Identifier(schema), sql.Identifier(table)),
+        sql.SQL(
+            'SELECT "Video_Title", "Video_Views" FROM {}.{} WHERE "Video_ID"=%s'
+        ).format(sql.Identifier(schema), sql.Identifier(table)),
         ("abc123",),
     )
     row = cur.fetchone()
@@ -250,8 +260,9 @@ def test_06_insert_update_delete_roundtrip(db):
     conn.commit()
 
     cur.execute(
-        sql.SQL('SELECT COUNT(*) AS n FROM {}.{} WHERE "Video_ID"=%s')
-        .format(sql.Identifier(schema), sql.Identifier(table)),
+        sql.SQL('SELECT COUNT(*) AS n FROM {}.{} WHERE "Video_ID"=%s').format(
+            sql.Identifier(schema), sql.Identifier(table)
+        ),
         ("abc123",),
     )
     assert cur.fetchone()["n"] == 0
@@ -279,24 +290,24 @@ def test_07_daily_metrics_upsert(db):
 
     two_days_ago = date.today() - timedelta(days=2)
     parent_row = {
-                    "Video_ID": "xyz456",
-                    "Video_Title": "test title",
-                    "Upload_Date": "2026-01-01T00:00:00Z",
-                    "Duration": timedelta(minutes=15, seconds=33),
-                    "Video_Type": "Normal",
-                    "Video_Views": 111,
-                    "Likes_Count": 22,
-                    "Comments_Count": 33,
-                    "Ingested_At": two_days_ago
-                }
-    
+        "Video_ID": "xyz456",
+        "Video_Title": "test title",
+        "Upload_Date": "2026-01-01T00:00:00Z",
+        "Duration": timedelta(minutes=15, seconds=33),
+        "Video_Type": "Normal",
+        "Video_Views": 111,
+        "Likes_Count": 22,
+        "Comments_Count": 33,
+        "Ingested_At": two_days_ago,
+    }
+
     insert_rows(cur=cur, schema=schema, layer=layer, table=parent_table, row=parent_row)
     conn.commit()
 
     # Fetch row
     cur.execute(
-                sql.SQL(
-                        """
+        sql.SQL(
+            """
                             SELECT
                                 "Video_ID",
                                 "Video_Views",
@@ -304,20 +315,20 @@ def test_07_daily_metrics_upsert(db):
                                 "Comments_Count"
                             FROM {schema}.{table}
                             WHERE "Video_ID" = %s
-                        """).
-                format(
-                        schema=sql.Identifier(schema),
-                        table=sql.Identifier(parent_table),
-                    ),
-                    ("xyz456",),
-                )
+                        """
+        ).format(
+            schema=sql.Identifier(schema),
+            table=sql.Identifier(parent_table),
+        ),
+        ("xyz456",),
+    )
     row = cur.fetchone()
     assert row is not None
 
     # Create metrics table
-    create_daily_metrics_table(cur, 
-                               schema=schema, table=table, 
-                               parent_schema=schema, parent_table=parent_table)
+    create_daily_metrics_table(
+        cur, schema=schema, table=table, parent_schema=schema, parent_table=parent_table
+    )
     conn.commit()
     cur.execute("SELECT to_regclass(%s) AS t;", (f"{schema}.{table}",))
     assert cur.fetchone()["t"] == f"{schema}.{table}"
@@ -328,22 +339,20 @@ def test_07_daily_metrics_upsert(db):
 
     # Query row and assert
     cur.execute(
-                sql.SQL("""
-                            SELECT 
-                                "Video_ID", 
+        sql.SQL(
+            """
+                            SELECT
+                                "Video_ID",
                                 "Video_Views",
                                 "Likes_Count",
                                 "Comments_Count",
                                 "Snapshot_Date"
-                            FROM {}.{} 
+                            FROM {}.{}
                             WHERE "Video_ID"=%s AND "Snapshot_Date" = %s
-                        """)
-                .format(
-                        sql.Identifier(schema), 
-                        sql.Identifier(table)
-                        ),
-                ("xyz456", snapshot_date)
-                )
+                        """
+        ).format(sql.Identifier(schema), sql.Identifier(table)),
+        ("xyz456", snapshot_date),
+    )
     row = cur.fetchone()
     assert row["Video_ID"] == "xyz456"
     assert row["Video_Views"] == 111

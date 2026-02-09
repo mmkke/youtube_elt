@@ -1,5 +1,7 @@
-import pytest
 from datetime import timedelta
+
+import pytest
+from isodate import ISO8601Error
 
 from elt.dwh.data_transformations import transform_duration
 
@@ -38,7 +40,7 @@ def test_transform_duration_missing_duration_returns_row_unchanged():
 
 def test_transform_duration_invalid_iso_raises():
     row = {"Duration": "NOT_A_DURATION"}
-    with pytest.raises(Exception):
+    with pytest.raises(ISO8601Error):
         transform_duration(row)
 
 

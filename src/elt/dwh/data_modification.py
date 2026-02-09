@@ -1,6 +1,7 @@
 # Libraries
 import logging
-from psycopg2 import sql, Error
+
+from psycopg2 import Error, sql
 
 logger = logging.getLogger(__name__)
 
@@ -18,7 +19,8 @@ def insert_rows(cur, schema: str, layer: str, table: str, row: dict) -> None:
                 "comments_count": row.get("commentCount"),
             }
 
-            query = sql.SQL("""
+            query = sql.SQL(
+                """
                 INSERT INTO {schema}.{table} (
                     "Video_ID",
                     "Video_Title",
@@ -39,7 +41,8 @@ def insert_rows(cur, schema: str, layer: str, table: str, row: dict) -> None:
                     %(comments_count)s,
                     NOW()
                 );
-            """).format(
+            """
+            ).format(
                 schema=sql.Identifier(schema),
                 table=sql.Identifier(table),
             )
@@ -49,15 +52,16 @@ def insert_rows(cur, schema: str, layer: str, table: str, row: dict) -> None:
                 "video_id": row["Video_ID"],
                 "video_title": row["Video_Title"],
                 "upload_date": row["Upload_Date"],
-                "duration": row["Duration"],       # timedelta -> INTERVAL
-                "video_type": row["Video_Type"],   # required for core
+                "duration": row["Duration"],  # timedelta -> INTERVAL
+                "video_type": row["Video_Type"],  # required for core
                 "video_views": row.get("Video_Views"),
                 "likes_count": row.get("Likes_Count"),
                 "comments_count": row.get("Comments_Count"),
-                "ingested_at": row["Ingested_At"]
+                "ingested_at": row["Ingested_At"],
             }
 
-            query = sql.SQL("""
+            query = sql.SQL(
+                """
                 INSERT INTO {schema}.{table} (
                     "Video_ID",
                     "Video_Title",
@@ -80,7 +84,8 @@ def insert_rows(cur, schema: str, layer: str, table: str, row: dict) -> None:
                     %(comments_count)s,
                     %(ingested_at)s
                 );
-            """).format(
+            """
+            ).format(
                 schema=sql.Identifier(schema),
                 table=sql.Identifier(table),
             )
@@ -92,7 +97,9 @@ def insert_rows(cur, schema: str, layer: str, table: str, row: dict) -> None:
         logger.info("Inserted row with Video_ID=%s", params["video_id"])
 
     except Error:
-        logger.exception("Insert failed for video_id=%s", locals().get("params", {}).get("video_id"))
+        logger.exception(
+            "Insert failed for video_id=%s", locals().get("params", {}).get("video_id")
+        )
         raise
 
 
@@ -109,7 +116,8 @@ def update_rows(cur, schema: str, layer: str, table: str, row: dict) -> None:
                 "comments_count": row.get("commentCount"),
             }
 
-            query = sql.SQL("""
+            query = sql.SQL(
+                """
                 UPDATE {schema}.{table}
                 SET
                     "Video_Title"    = %(video_title)s,
@@ -120,7 +128,8 @@ def update_rows(cur, schema: str, layer: str, table: str, row: dict) -> None:
                 WHERE
                     "Video_ID" = %(video_id)s
                     AND "Upload_Date" = %(upload_date)s;
-            """).format(
+            """
+            ).format(
                 schema=sql.Identifier(schema),
                 table=sql.Identifier(table),
             )
@@ -130,15 +139,16 @@ def update_rows(cur, schema: str, layer: str, table: str, row: dict) -> None:
                 "video_id": row["Video_ID"],
                 "upload_date": row["Upload_Date"],
                 "video_title": row["Video_Title"],
-                "duration": row["Duration"],        # timedelta -> INTERVAL
+                "duration": row["Duration"],  # timedelta -> INTERVAL
                 "video_type": row["Video_Type"],
                 "video_views": row.get("Video_Views"),
                 "likes_count": row.get("Likes_Count"),
                 "comments_count": row.get("Comments_Count"),
-                "ingested_at": row["Ingested_At"]
+                "ingested_at": row["Ingested_At"],
             }
 
-            query = sql.SQL("""
+            query = sql.SQL(
+                """
                 UPDATE {schema}.{table}
                 SET
                     "Video_Title"    = %(video_title)s,
@@ -147,11 +157,12 @@ def update_rows(cur, schema: str, layer: str, table: str, row: dict) -> None:
                     "Video_Views"    = %(video_views)s,
                     "Likes_Count"    = %(likes_count)s,
                     "Comments_Count" = %(comments_count)s,
-                    "Ingested_At"    = %(ingested_at)s      
+                    "Ingested_At"    = %(ingested_at)s
                 WHERE
                     "Video_ID" = %(video_id)s
                     AND "Upload_Date" = %(upload_date)s;
-            """).format(
+            """
+            ).format(
                 schema=sql.Identifier(schema),
                 table=sql.Identifier(table),
             )
@@ -162,17 +173,21 @@ def update_rows(cur, schema: str, layer: str, table: str, row: dict) -> None:
         cur.execute(query, params)
 
     except Error:
-        logger.exception("Update failed for video_id=%s", locals().get("params", {}).get("video_id"))
+        logger.exception(
+            "Update failed for video_id=%s", locals().get("params", {}).get("video_id")
+        )
         raise
 
 
 def delete_rows(cur, schema: str, table: str, ids_to_delete: list[str]) -> None:
     """Delete rows based on list of IDs."""
     try:
-        q = sql.SQL("""
+        q = sql.SQL(
+            """
             DELETE FROM {schema}.{table}
             WHERE "Video_ID" = ANY(%s);
-        """).format(
+        """
+        ).format(
             schema=sql.Identifier(schema),
             table=sql.Identifier(table),
         )

@@ -1,16 +1,18 @@
-from psycopg2 import sql
 from datetime import date
-from typing import Optional
+
+from psycopg2 import sql
+
 
 def create_daily_metrics_table(
-                            cur,
-                            schema: str = "core",
-                            table: str = "yt_api_metrics_daily",
-                            parent_schema: str = "core",
-                            parent_table: str = "yt_api",
-                        ) -> None:
+    cur,
+    schema: str = "core",
+    table: str = "yt_api_metrics_daily",
+    parent_schema: str = "core",
+    parent_table: str = "yt_api",
+) -> None:
     """Create the Daily Metrics table."""
-    ddl = (sql.SQL("""
+    ddl = sql.SQL(
+        """
                     CREATE TABLE IF NOT EXISTS {schema}.{table} (
                         "Video_ID"       VARCHAR(11) NOT NULL,
                         "Snapshot_Date"  DATE NOT NULL,
@@ -23,32 +25,38 @@ def create_daily_metrics_table(
                             REFERENCES {parent_schema}.{parent_table} ("Video_ID")
                             ON DELETE CASCADE
                     );
-                """).
-        format(
-                schema=sql.Identifier(schema),
-                table=sql.Identifier(table),
-                parent_schema=sql.Identifier(parent_schema),
-                parent_table=sql.Identifier(parent_table),
-            ))
+                """
+    ).format(
+        schema=sql.Identifier(schema),
+        table=sql.Identifier(table),
+        parent_schema=sql.Identifier(parent_schema),
+        parent_table=sql.Identifier(parent_table),
+    )
 
     cur.execute(ddl)
 
-def create_daily_metrics_indexes(cur, schema: str = "core", table: str = "yt_api_metrics_daily") -> None:
+
+def create_daily_metrics_indexes(
+    cur, schema: str = "core", table: str = "yt_api_metrics_daily"
+) -> None:
     """Create indexes for the daily metrics table."""
-    idx_date = (sql.SQL("""
+    idx_date = sql.SQL(
+        """
                             CREATE INDEX IF NOT EXISTS {idx}
                             ON {schema}.{table} ("Snapshot_Date");
-                        """).
-                format(
-                        idx=sql.Identifier(f"idx_{table}_snapshot_date"),
-                        schema=sql.Identifier(schema),
-                        table=sql.Identifier(table),
-                    ))
+                        """
+    ).format(
+        idx=sql.Identifier(f"idx_{table}_snapshot_date"),
+        schema=sql.Identifier(schema),
+        table=sql.Identifier(table),
+    )
 
-    idx_video = sql.SQL("""
+    idx_video = sql.SQL(
+        """
         CREATE INDEX IF NOT EXISTS {idx}
         ON {schema}.{table} ("Video_ID");
-    """).format(
+    """
+    ).format(
         idx=sql.Identifier(f"idx_{table}_video_id"),
         schema=sql.Identifier(schema),
         table=sql.Identifier(table),
@@ -58,14 +66,13 @@ def create_daily_metrics_indexes(cur, schema: str = "core", table: str = "yt_api
     cur.execute(idx_video)
 
 
-
 def upsert_daily_metrics(
-                        cur,
-                        row: dict,
-                        schema: str = "core",
-                        table: str = "yt_api_metrics_daily",
-                        snapshot_date: Optional[date] = None,
-                    ) -> None:
+    cur,
+    row: dict,
+    schema: str = "core",
+    table: str = "yt_api_metrics_daily",
+    snapshot_date: date | None = None,
+) -> None:
     """
     Insert/update one daily metrics row.
     Default snapshot_date is today (CURRENT_DATE equivalent).
@@ -78,7 +85,8 @@ def upsert_daily_metrics(
         "comments_count": row.get("Comments_Count"),
     }
 
-    query = (sql.SQL("""
+    query = sql.SQL(
+        """
                         INSERT INTO {schema}.{table} (
                             "Video_ID",
                             "Snapshot_Date",
@@ -99,10 +107,10 @@ def upsert_daily_metrics(
                             "Likes_Count"     = EXCLUDED."Likes_Count",
                             "Comments_Count"  = EXCLUDED."Comments_Count"
                         ;
-                    """).
-                format(
-                    schema=sql.Identifier(schema),
-                    table=sql.Identifier(table),
-                ))
+                    """
+    ).format(
+        schema=sql.Identifier(schema),
+        table=sql.Identifier(table),
+    )
 
     cur.execute(query, params)

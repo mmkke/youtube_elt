@@ -1,11 +1,12 @@
 # Libraries
-from isodate import parse_duration 
-from datetime import timedelta
+
+from isodate import parse_duration
+
 
 def transform_duration(row: dict) -> dict:
     """
     Transform ISO 8601 duration into datetime.timedelta
-    (for PostgreSQL INTERVAL) and classify "Video_Type" as 
+    (for PostgreSQL INTERVAL) and classify "Video_Type" as
     either 'Shorts' if <= 60 seconds, or 'Normal.
     """
     iso_str = row.get("Duration")

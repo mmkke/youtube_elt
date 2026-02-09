@@ -1,12 +1,15 @@
-from unittest.mock import Mock
 from datetime import date
-import time_machine
-import pendulum
+from unittest.mock import Mock
 
-from elt.dwh.daily_metrics import create_daily_metrics_table, create_daily_metrics_indexes, upsert_daily_metrics
+import pendulum
+import time_machine
 
 import elt.dwh.tasks as tasks
-
+from elt.dwh.daily_metrics import (
+    create_daily_metrics_indexes,
+    create_daily_metrics_table,
+    upsert_daily_metrics,
+)
 
 
 def test_01_create_daily_metrics_table_executes_ddl():
@@ -14,26 +17,29 @@ def test_01_create_daily_metrics_table_executes_ddl():
     create_daily_metrics_table(cur, schema="core", table="yt_api_metrics_daily")
     cur.execute.assert_called_once()
 
+
 def test_02_create_daily_metrics_indexes_executes_ddl():
     cur = Mock()
     create_daily_metrics_indexes(cur, schema="core", table="yt_api_metrics_daily")
     assert cur.execute.call_count == 2
 
+
 def test_03_upsert_daily_metrics_executes_ddl():
     cur = Mock()
-    row = {
-        "Video_ID": "abc123",
-        "Video_Views": 4,
-        "Like_Count": 4,
-        "Comments_Count": 4
-    }
+    row = {"Video_ID": "abc123", "Video_Views": 4, "Like_Count": 4, "Comments_Count": 4}
     upsert_daily_metrics(cur, row, schema="core", table="yt_api_metrics_daily")
     cur.execute.assert_called_once()
+
 
 @time_machine.travel("2026-01-27")
 def test_04_upsert_daily_metrics_defaults_snapshot_date_to_today():
     cur = Mock()
-    row = {"Video_ID": "abc123", "Video_Views": 10, "Likes_Count": 2, "Comments_Count": 1}
+    row = {
+        "Video_ID": "abc123",
+        "Video_Views": 10,
+        "Likes_Count": 2,
+        "Comments_Count": 1,
+    }
 
     upsert_daily_metrics(cur, row)
 
@@ -45,8 +51,18 @@ def test_05_daily_metrics_table_uses_logical_date(monkeypatch):
     conn = Mock()
     cur = Mock()
     cur.fetchall.return_value = [
-        {"Video_ID": "abc123", "Video_Views": 10, "Likes_Count": 2, "Comments_Count": 1},
-        {"Video_ID": "def456", "Video_Views": 20, "Likes_Count": 4, "Comments_Count": 0},
+        {
+            "Video_ID": "abc123",
+            "Video_Views": 10,
+            "Likes_Count": 2,
+            "Comments_Count": 1,
+        },
+        {
+            "Video_ID": "def456",
+            "Video_Views": 20,
+            "Likes_Count": 4,
+            "Comments_Count": 0,
+        },
     ]
 
     # Patch external dependencies in *the module where they’re used*

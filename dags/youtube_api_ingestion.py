@@ -1,25 +1,20 @@
-
 # Libraries
+from datetime import datetime, timedelta
+
 import pendulum
 from airflow import DAG
 from airflow.models import Variable
-from airflow.operators.trigger_dagrun import TriggerDagRunOperator
-from datetime import datetime, timedelta
 
 # Modules
 from elt.api.extract_functions import (
-                                    get_playlist_id, 
-                                    get_video_ids, 
-                                    extract_video_detail, 
-                                    save_video_data_to_json
-                                    )
-from elt.dwh.tasks import(
-                                staging_table,
-                                core_table,
-                                daily_metrics_table
-                                )
-
+    extract_video_detail,
+    get_playlist_id,
+    get_video_ids,
+    save_video_data_to_json,
+)
 from elt.data_quality.soda import yt_elt_data_quality
+from elt.dwh.tasks import core_table, daily_metrics_table, staging_table
+
 # ============================================================
 # Define local time zone
 local_tz = pendulum.timezone("America/New_York")
@@ -43,13 +38,13 @@ default_args = {
 ## dag_01: Accessing YouTube API and saving JSON with raw video data
 
 with DAG(
-        dag_id="youtube_api_ingestion",
-        default_args=default_args,
-        description= "This DAG handles API ingestion and writes raw JSON to storage.",
-        schedule = "0 8 * * *", # cron code "minute hour day month weekday" https://crontab.guru/#0_8_*_*_*
-        catchup = False,
-    ) as dag_01:
-    
+    dag_id="youtube_api_ingestion",
+    default_args=default_args,
+    description="This DAG handles API ingestion and writes raw JSON to storage.",
+    schedule="0 8 * * *",  # cron code "minute hour day month weekday" https://crontab.guru/#0_8_*_*_*
+    catchup=False,
+) as dag_01:
+
     # Params
     CHANNEL_HANDLE = Variable.get("CHANNEL_HANDLE")
     json_path = f"data/{CHANNEL_HANDLE}"
@@ -58,19 +53,12 @@ with DAG(
 
     # Tasks
     playlistID = get_playlist_id(channel_handle=CHANNEL_HANDLE)
-    video_ids = get_video_ids(
-                        playlistID, 
-                        max_results=max_result
-                        )
-    extracted_data = extract_video_detail(
-                                    video_ids=video_ids,
-                                    batch_size=batch_size
-                                    )
+    video_ids = get_video_ids(playlistID, max_results=max_result)
+    extracted_data = extract_video_detail(video_ids=video_ids, batch_size=batch_size)
     save_to_json_task = save_video_data_to_json(
-                        extracted_data=extracted_data,
-                        path=json_path
-                        )
-    
+        extracted_data=extracted_data, path=json_path
+    )
+
     # Define dependencies
     playlistID >> video_ids >> extracted_data >> save_to_json_task
 
@@ -78,19 +66,19 @@ with DAG(
 ## dag_02: Loading data into 'staging' and 'core' schemas.
 
 with DAG(
-        dag_id="youtube_db_load",
-        default_args=default_args,
-        description= "This DAG handles data loading to 'staging' and 'core' schemas.",
-        schedule = "0 10 * * *", # cron code "minute hour day month weekday" https://crontab.guru/#0_8_*_*_*
-        catchup = False,
-    ) as dag_02:
+    dag_id="youtube_db_load",
+    default_args=default_args,
+    description="This DAG handles data loading to 'staging' and 'core' schemas.",
+    schedule="0 10 * * *",  # cron code "minute hour day month weekday" https://crontab.guru/#0_8_*_*_*
+    catchup=False,
+) as dag_02:
 
     # Tasks
     update_staging_layer = staging_table()
     update_core_layer = core_table()
     update_daily_metrics = daily_metrics_table()
 
-    #Define dependencies
+    # Define dependencies
     update_staging_layer >> update_core_layer >> update_daily_metrics
 
 
@@ -98,16 +86,16 @@ with DAG(
 ## dag_03: Checks data quality on both staging and core layers using Soda.
 
 with DAG(
-        dag_id="data_quality_soda_check",
-        default_args=default_args,
-        description= "This DAG checks data quality on both staging and core layers using Soda.",
-        schedule = "0 12 * * *", # cron code "minute hour day month weekday" https://crontab.guru/#0_8_*_*_*
-        catchup = False,
-    ) as dag_03:
+    dag_id="data_quality_soda_check",
+    default_args=default_args,
+    description="This DAG checks data quality on both staging and core layers using Soda.",
+    schedule="0 12 * * *",  # cron code "minute hour day month weekday" https://crontab.guru/#0_8_*_*_*
+    catchup=False,
+) as dag_03:
 
     # Tasks
-    soda_validate_staging = yt_elt_data_quality(schema='staging')
-    soda_validate_core = yt_elt_data_quality(schema='core')
+    soda_validate_staging = yt_elt_data_quality(schema="staging")
+    soda_validate_core = yt_elt_data_quality(schema="core")
 
-    #Define dependencies
+    # Define dependencies
     soda_validate_staging >> soda_validate_core

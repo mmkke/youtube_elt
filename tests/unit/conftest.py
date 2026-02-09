@@ -1,12 +1,11 @@
-import os
-import pytest 
 from unittest import mock
+
+import pytest
 from airflow.models import Variable
-import sys
-from pathlib import Path
 
 # DAGS_DIR = Path(__file__).resolve().parents[2] / "dags"  # /opt/airflow/dags
 # sys.path.insert(0, str(DAGS_DIR))
+
 
 @pytest.fixture
 def api_key():

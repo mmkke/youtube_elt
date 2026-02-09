@@ -1,11 +1,10 @@
 import os
-import sys
 import uuid
+
 import pytest
-from pathlib import Path
 from psycopg2 import sql
 
-from elt.dwh.data_utils import get_conn_cursor, close_conn_cursor
+from elt.dwh.data_utils import close_conn_cursor, get_conn_cursor
 
 TEST_CONN_ID = os.getenv("TEST_CONN_ID", "postgres_db_yt_elt_test")
 TEST_DATABASE = os.getenv("TEST_DATABASE", "elt_test_db")
@@ -30,7 +29,11 @@ def db():
         yield conn, cur, schema
     finally:
         try:
-            cur.execute(sql.SQL("DROP SCHEMA IF EXISTS {} CASCADE").format(sql.Identifier(schema)))
+            cur.execute(
+                sql.SQL("DROP SCHEMA IF EXISTS {} CASCADE").format(
+                    sql.Identifier(schema)
+                )
+            )
             conn.commit()
         except Exception:
             try:
