@@ -1,5 +1,9 @@
 # YouTube ELT Pipeline
 
+[![CI](https://github.com/<YOUR_GITHUB_USERNAME>/youtube_elt/actions/workflows/ci.yml/badge.svg)](
+https://github.com/<YOUR_GITHUB_USERNAME>/youtube_elt/actions/workflows/ci.yml
+)
+
 An end-to-end ELT pipeline for ingesting YouTube channel data, transforming it into a structured Postgres data warehouse, and maintaining both current-state analytics and historical daily metrics using Apache Airflow.
 
 This project is designed for incremental ingestion, idempotent updates, and audit-friendly analytics.
