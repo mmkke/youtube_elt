@@ -169,9 +169,16 @@ http://localhost:8080
 
 ## Configuration
 
-Environment variables are managed via `.env` and injected into Airflow:
+All configuration is managed via environment variables defined in the .env file and injected into Airflow:
 - API keys via `AIRFLOW_VAR_*`
 - Database connections via `AIRFLOW_CONN_*`
 - Separate databases for prod and test
 
+This includes API credentials, database connections, and the YouTube channel to ingest.
+
+To point the pipeline at a specific YouTube channel, set:
+
+``` bash
+CHANNEL_HANDLE=YourChannelHandleHere
+```
 ---

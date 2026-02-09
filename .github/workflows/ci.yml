@@ -1,0 +1,81 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [ main, master ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:  
+      - name: Checkout #pulls repo into the runner so Docker can build it
+        uses: actions/checkout@v4  
+
+      - name: Set up Docker Buildx #sets up Docker Buildx 
+        uses: docker/setup-buildx-action@v3
+
+      - name: Create CI .env #  creates a runtime .env file inside the GitHub runner so that the docker-compose.yml can interpolate variables like ${POSTGRES_CONN_HOST}
+        run: |
+          cat > .env << 'EOF'
+          # Dummy values (compose interpolates these even if CI overrides images)
+          DOCKERHUB_NAMESPACE=local
+          DOCKERHUB_REPOSITORY=airflow
+          IMAGE_TAG=ci
+
+          AIRFLOW_UID=50000
+          POSTGRES_CONN_HOST=postgres
+          POSTGRES_CONN_PORT=5432
+
+          # Postgres "admin" user for the container itself
+          POSTGRES_CONN_USERNAME=postgres
+          POSTGRES_CONN_PASSWORD=postgres
+
+          # Airflow metadata DB connection pieces
+          METADATA_DATABASE_NAME=airflow
+          METADATA_DATABASE_USERNAME=airflow
+          METADATA_DATABASE_PASSWORD=airflow
+
+          # Celery result backend DB pieces (if you keep them separate)
+          CELERY_BACKEND_NAME=airflow
+          CELERY_BACKEND_USERNAME=airflow
+          CELERY_BACKEND_PASSWORD=airflow
+
+          # ELT databases (your init-multiple-databases.sh should create these)
+          ELT_DATABASE_NAME=elt_db
+          ELT_DATABASE_USERNAME=yt_api_user
+          ELT_DATABASE_PASSWORD=yt_api_pass
+
+          TEST_ELT_DATABASE_NAME=elt_test_db
+          TEST_ELT_DATABASE_USERNAME=yt_api_test_user
+          TEST_ELT_DATABASE_PASSWORD=yt_api_test_pass
+
+          # Airflow Variables (so Variable.get() works during DAG parse)
+          AIRFLOW_VAR_CHANNEL_HANDLE=RJTheBikeGuy
+          AIRFLOW_VAR_API_KEY=dummy_key_for_ci
+
+          # Ensure your code is importable
+          PYTHONPATH=/opt/airflow/src
+          EOF
+
+      - name: Build and start dependencies # Builds image and start services and overlay a CI override file (docker-compose.ci.yml)
+        run: |
+          docker compose -f docker-compose.yml -f docker-compose.ci.yml up -d --build --wait
+
+      - name: Run unit tests
+        run: |
+          docker compose exec -T airflow-worker pytest tests/unit/*
+ 
+      - name: Run integration tests
+        run: |
+          docker compose exec -T airflow-worker pytest tests/integration/*
+
+      - name: DAG import sanity check
+        run: |
+          docker compose exec -T airflow-worker python -c "import dags.youtube_api_ingestion"
+
+      - name: Teardown
+        if: always()
+        run: |
+          docker compose -f docker-compose.yml -f docker-compose.ci.yml down -v

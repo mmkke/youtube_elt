@@ -15,5 +15,6 @@
 
         - Add and SCD2 table for dimensions like video_title, duration, 
             - core.yt_api_dim_history
+    - add CI/CD workflows with GitHub Actionns
 
 

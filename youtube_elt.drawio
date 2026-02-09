@@ -1,0 +1,79 @@
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36" version="29.3.1">
+  <diagram name="Page-1" id="4So0awokF-6dlqt3Tez6">
+    <mxGraphModel dx="1616" dy="813" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" background="light-dark(#FFFFFF,#9AC7BF)" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="0ClXNZ8GH-J4eDCNdpHs-17" edge="1" parent="1" source="0ClXNZ8GH-J4eDCNdpHs-1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="0ClXNZ8GH-J4eDCNdpHs-2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="0ClXNZ8GH-J4eDCNdpHs-18" connectable="0" parent="1" style="group" value="" vertex="1">
+          <mxGeometry height="470" width="120" x="30" y="100" as="geometry" />
+        </mxCell>
+        <mxCell id="0ClXNZ8GH-J4eDCNdpHs-8" parent="0ClXNZ8GH-J4eDCNdpHs-18" style="rounded=0;whiteSpace=wrap;html=1;align=left;" value="" vertex="1">
+          <mxGeometry height="393.78378378378375" width="120" y="76.21621621621621" as="geometry" />
+        </mxCell>
+        <mxCell id="0ClXNZ8GH-J4eDCNdpHs-9" parent="0ClXNZ8GH-J4eDCNdpHs-18" style="rounded=1;whiteSpace=wrap;html=1;fillColor=light-dark(#E51400,#FF3333);fontColor=#ffffff;strokeColor=#B20000;" value="JSON" vertex="1">
+          <mxGeometry height="76.21621621621621" width="120" as="geometry" />
+        </mxCell>
+        <mxCell id="0ClXNZ8GH-J4eDCNdpHs-10" parent="0ClXNZ8GH-J4eDCNdpHs-18" style="rounded=0;whiteSpace=wrap;html=1;fontSize=10;" value="{channel_handle]_yyyy-mm-dd" vertex="1">
+          <mxGeometry height="38.108108108108105" width="120" y="76.21621621621621" as="geometry" />
+        </mxCell>
+        <mxCell id="0ClXNZ8GH-J4eDCNdpHs-14" parent="0ClXNZ8GH-J4eDCNdpHs-18" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="&lt;div style=&quot;text-align: left;&quot;&gt;video_id&lt;/div&gt;&lt;div style=&quot;text-align: left;&quot;&gt;&lt;br&gt;&lt;/div&gt;&lt;div style=&quot;text-align: left;&quot;&gt;title&lt;/div&gt;&lt;div style=&quot;text-align: left;&quot;&gt;&lt;br&gt;&lt;/div&gt;&lt;div style=&quot;text-align: left;&quot;&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;publishedAt&lt;/span&gt;&lt;/div&gt;&lt;div style=&quot;text-align: left;&quot;&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;&lt;br&gt;&lt;/span&gt;&lt;/div&gt;&lt;div style=&quot;text-align: left;&quot;&gt;duration&lt;/div&gt;&lt;div style=&quot;text-align: left;&quot;&gt;&lt;br&gt;&lt;/div&gt;&lt;div style=&quot;text-align: left;&quot;&gt;viewCount&lt;/div&gt;&lt;div style=&quot;text-align: left;&quot;&gt;&lt;br&gt;&lt;/div&gt;&lt;div style=&quot;text-align: left;&quot;&gt;likeCount&lt;/div&gt;&lt;div style=&quot;text-align: left;&quot;&gt;&lt;br&gt;&lt;/div&gt;&lt;div style=&quot;text-align: left;&quot;&gt;favoriteCount&lt;/div&gt;&lt;div style=&quot;text-align: left;&quot;&gt;&lt;br&gt;&lt;/div&gt;&lt;div style=&quot;text-align: left;&quot;&gt;commentCount&lt;/div&gt;" vertex="1">
+          <mxGeometry height="355.6756756756756" width="100" x="10" y="114.32432432432432" as="geometry" />
+        </mxCell>
+        <mxCell id="0ClXNZ8GH-J4eDCNdpHs-19" connectable="0" parent="1" style="group" value="" vertex="1">
+          <mxGeometry height="470" width="120" x="260" y="100" as="geometry" />
+        </mxCell>
+        <mxCell id="0ClXNZ8GH-J4eDCNdpHs-1" parent="0ClXNZ8GH-J4eDCNdpHs-19" style="rounded=0;whiteSpace=wrap;html=1;align=left;" value="&lt;div&gt;&lt;br&gt;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="393.78378378378375" width="120" y="76.21621621621621" as="geometry" />
+        </mxCell>
+        <mxCell id="0ClXNZ8GH-J4eDCNdpHs-3" parent="0ClXNZ8GH-J4eDCNdpHs-19" style="rounded=1;whiteSpace=wrap;html=1;fillColor=light-dark(#FFCC99,#FF9933);strokeColor=#36393d;fontColor=default;" value="&lt;font style=&quot;color: light-dark(rgb(0, 0, 0), rgb(0, 0, 0));&quot;&gt;Staging&lt;/font&gt;" vertex="1">
+          <mxGeometry height="76.21621621621621" width="120" as="geometry" />
+        </mxCell>
+        <mxCell id="0ClXNZ8GH-J4eDCNdpHs-5" parent="0ClXNZ8GH-J4eDCNdpHs-19" style="rounded=0;whiteSpace=wrap;html=1;fontSize=10;" value="{staging}.{yt_api}" vertex="1">
+          <mxGeometry height="38.108108108108105" width="120" y="76.21621621621621" as="geometry" />
+        </mxCell>
+        <mxCell id="0ClXNZ8GH-J4eDCNdpHs-12" parent="0ClXNZ8GH-J4eDCNdpHs-19" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;rounded=0;" value="&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;Video_ID&lt;/span&gt;&lt;div&gt;&lt;br&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;Video_Title&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;Upload_Date&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;Duration&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;Video_Views&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;Likes_Count&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;div&gt;Comments_Count&lt;/div&gt;&lt;div style=&quot;&quot;&gt;&lt;br style=&quot;&quot;&gt;&lt;/div&gt;&lt;/div&gt;&lt;div style=&quot;&quot;&gt;Ingested_At&lt;/div&gt;" vertex="1">
+          <mxGeometry height="330.27027027027026" width="100" x="10" y="127.02702702702702" as="geometry" />
+        </mxCell>
+        <mxCell id="0ClXNZ8GH-J4eDCNdpHs-20" connectable="0" parent="1" style="group" value="" vertex="1">
+          <mxGeometry height="470" width="120" x="490" y="100" as="geometry" />
+        </mxCell>
+        <mxCell id="0ClXNZ8GH-J4eDCNdpHs-2" parent="0ClXNZ8GH-J4eDCNdpHs-20" style="rounded=0;whiteSpace=wrap;html=1;" value="" vertex="1">
+          <mxGeometry height="393.78378378378375" width="120" y="76.21621621621621" as="geometry" />
+        </mxCell>
+        <mxCell id="0ClXNZ8GH-J4eDCNdpHs-4" parent="0ClXNZ8GH-J4eDCNdpHs-20" style="rounded=1;whiteSpace=wrap;html=1;fillColor=light-dark(#EEEEEE,#E6E6E6);strokeColor=#36393d;fontColor=light-dark(#000000,#000000);" value="Core" vertex="1">
+          <mxGeometry height="76.21621621621621" width="120" as="geometry" />
+        </mxCell>
+        <mxCell id="0ClXNZ8GH-J4eDCNdpHs-6" parent="0ClXNZ8GH-J4eDCNdpHs-20" style="rounded=0;whiteSpace=wrap;html=1;fontSize=10;" value="{core}.{yt_api}" vertex="1">
+          <mxGeometry height="38.108108108108105" width="120" y="76.21621621621621" as="geometry" />
+        </mxCell>
+        <mxCell id="0ClXNZ8GH-J4eDCNdpHs-15" parent="0ClXNZ8GH-J4eDCNdpHs-20" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;rounded=0;" value="&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;Video_ID&lt;/span&gt;&lt;div&gt;&lt;br&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;Video_Title&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;Upload_Date&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;Duration&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;&lt;br&gt;&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;Video_Type&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;Video_Views&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;Likes_Count&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;div&gt;Comments_Count&lt;/div&gt;&lt;div style=&quot;&quot;&gt;&lt;br style=&quot;&quot;&gt;&lt;/div&gt;&lt;/div&gt;&lt;div style=&quot;&quot;&gt;Ingested_At&lt;/div&gt;" vertex="1">
+          <mxGeometry height="355.6756756756756" width="90" x="15" y="114.32432432432432" as="geometry" />
+        </mxCell>
+        <mxCell id="0ClXNZ8GH-J4eDCNdpHs-23" connectable="0" parent="1" style="group" value="" vertex="1">
+          <mxGeometry height="470" width="120" x="690" y="100" as="geometry" />
+        </mxCell>
+        <mxCell id="0ClXNZ8GH-J4eDCNdpHs-24" parent="0ClXNZ8GH-J4eDCNdpHs-23" style="rounded=0;whiteSpace=wrap;html=1;" value="" vertex="1">
+          <mxGeometry height="393.78378378378375" width="120" y="76.21621621621621" as="geometry" />
+        </mxCell>
+        <mxCell id="0ClXNZ8GH-J4eDCNdpHs-25" parent="0ClXNZ8GH-J4eDCNdpHs-23" style="rounded=1;whiteSpace=wrap;html=1;fillColor=light-dark(#EEEEEE,#E6E6E6);strokeColor=#36393d;fontColor=light-dark(#000000,#000000);" value="Core" vertex="1">
+          <mxGeometry height="76.21621621621621" width="120" as="geometry" />
+        </mxCell>
+        <mxCell id="0ClXNZ8GH-J4eDCNdpHs-26" parent="0ClXNZ8GH-J4eDCNdpHs-23" style="rounded=0;whiteSpace=wrap;html=1;fontSize=10;" value="{core}.{daily_metrics}" vertex="1">
+          <mxGeometry height="38.108108108108105" width="120" y="76.21621621621621" as="geometry" />
+        </mxCell>
+        <mxCell id="0ClXNZ8GH-J4eDCNdpHs-27" parent="0ClXNZ8GH-J4eDCNdpHs-23" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;rounded=0;" value="&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;Video_ID&lt;/span&gt;&lt;div&gt;&lt;br&gt;Snapshot_Date&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;Video_Views&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;Likes_Count&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;div&gt;Comments_Count&lt;/div&gt;&lt;div style=&quot;&quot;&gt;&lt;br style=&quot;&quot;&gt;&lt;/div&gt;&lt;/div&gt;&lt;div style=&quot;&quot;&gt;Ingested_At&lt;/div&gt;" vertex="1">
+          <mxGeometry height="355.6756756756756" width="90" x="15" y="114.32432432432432" as="geometry" />
+        </mxCell>
+        <mxCell id="0ClXNZ8GH-J4eDCNdpHs-31" edge="1" parent="1" source="0ClXNZ8GH-J4eDCNdpHs-2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="0ClXNZ8GH-J4eDCNdpHs-24">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="0ClXNZ8GH-J4eDCNdpHs-32" edge="1" parent="1" source="0ClXNZ8GH-J4eDCNdpHs-8" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="0ClXNZ8GH-J4eDCNdpHs-1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

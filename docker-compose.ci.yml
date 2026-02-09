@@ -1,0 +1,30 @@
+services:
+  airflow-webserver:
+    image: airflow-ci:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+  airflow-scheduler:
+    image: airflow-ci:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+  airflow-worker:
+    image: airflow-ci:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+  airflow-init:
+    image: airflow-ci:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+  airflow-cli:
+    image: airflow-ci:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
